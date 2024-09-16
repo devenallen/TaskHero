@@ -1,0 +1,14 @@
+[package]
+name = "TaskHero"
+version = "0.1.0"
+authors = ["Deven Allen <dca09692@uga.edu>", "Mitchell Casleton <mitchell.casleton@uga.edu>", "Jagadish Hiremath <jagadishkumar.hiremath@uga.edu>"]
+edition = "2021"
+description = "A crate that turns task management into a game with gamification elements."
+repository = "https://github.com/devenallen/TaskHero"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
