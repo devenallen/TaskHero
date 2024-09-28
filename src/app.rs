@@ -19,6 +19,7 @@ pub struct TemplateApp {
     new_task_due_date: String, // Due date of the new task
     new_task_priority: PriorityLevel, // Priority of the new task
     new_task_completed: bool, // Whether the new task is completed
+    is_editing: bool, // Flag to indicate if the task is being edited
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -42,6 +43,7 @@ impl Default for TemplateApp {
             new_task_due_date: String::new(),
             new_task_priority: PriorityLevel::Low,
             new_task_completed: false,
+            is_editing: false,
         }
     }
 }
@@ -169,11 +171,74 @@ impl eframe::App for TemplateApp {
                             ui.checkbox(&mut task.completed, "");
                             ui.label(task.name.clone());
                             if ui.button("View More info").clicked() {
+                                // display more info about the task
                                 self.selected_task = Some(i);
                             }
                         });
                     }
                 });
+                // Check if a task is selected and display its details
+                if let Some(selected_index) = self.selected_task {
+                    let selected_task = &mut self.tasks[selected_index]; // Get the selected task
+
+                    ui.separator();
+                    ui.heading("Task Details");
+
+                    // Editable fields for the selected task
+                    if self.is_editing {
+                        ui.label("Editing Task:");
+                        ui.horizontal(|ui| {
+                            ui.label("Name: ");
+                            ui.text_edit_singleline(&mut selected_task.name);
+                        });
+                        ui.horizontal(|ui| {
+                            ui.label("Description: ");
+                            ui.text_edit_multiline(&mut selected_task.description);
+                        });
+                        ui.horizontal(|ui| {
+                            ui.label("Due Date: ");
+                            ui.text_edit_singleline(&mut selected_task.due_date); // Assuming due_date is a String
+                        });
+                        ui.horizontal(|ui| {
+                            ui.label("Priority: ");
+                            let mut priority_val = selected_task.priority as u8;
+                            ui.add(egui::Slider::new(&mut (priority_val), 1..=3).text("Level"));
+                            selected_task.priority = match priority_val {
+                                1 => PriorityLevel::Low,
+                                2 => PriorityLevel::Medium,
+                                3 => PriorityLevel::High,
+                                _ => PriorityLevel::Low,
+                            };
+                        });
+
+                        // Save Changes button
+                        if ui.button("Save Changes").clicked() {
+                            self.is_editing = false; // Exit editing mode
+                        }
+
+                        // Cancel Edits button
+                        if ui.button("Cancel Edits").clicked() {
+                            self.is_editing = false; // Exit editing mode
+                        }
+                    } else {
+                        // Display read-only fields for the selected task
+                        ui.label(format!("Name: {}", selected_task.name));
+                        ui.label(format!("Description: {}", selected_task.description));
+                        ui.label(format!("Due Date: {}", selected_task.due_date));
+                        ui.label(format!("Priority: {:?}", selected_task.priority));
+                        ui.label(format!("Completed: {}", selected_task.completed));
+
+                        // Edit Task button
+                        if ui.button("Edit Task").clicked() {
+                            self.is_editing = true; // Enter editing mode
+                        }
+                    }
+
+                    // Close button to hide the details view
+                    if ui.button("Close").clicked() {
+                        self.selected_task = None; // Clear the selection to hide details
+                    }
+                }
 
                 ui.separator();
 
