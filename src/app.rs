@@ -258,7 +258,28 @@ impl eframe::App for TemplateApp {
                 // Add content related to achievements here, e.g., list of achievements.
                 ui.label("Achievement 1: Task completion streak!");
                 ui.label("Achievement 2: High priority tasks completed!");
-                // Add more achievements as needed
+                // if there are 3 completed tasks, give user bronze status, 5 silver, 10 gold
+                let completed_tasks = self.tasks.iter().filter(|task| task.completed).count();
+                if completed_tasks >= 10 {
+                    ui.label("Achievement 3: Gold status achieved!");
+                } else if completed_tasks >= 5 {
+                    ui.label("Achievement 3: Silver status achieved!");
+                } else if completed_tasks >= 3 {
+                    ui.label("Achievement 3: Bronze status achieved!");
+                }
+                // add 10 points to user's score per completed task
+                // level 1 is 10 points, level 2 is 20 points, level 3 is 30 points
+                let points_earned = self
+                    .tasks
+                    .iter()
+                    .filter(|task| task.completed)
+                    .map(|task| match task.priority {
+                        PriorityLevel::Low => 10,
+                        PriorityLevel::Medium => 20,
+                        PriorityLevel::High => 30,
+                    })
+                    .sum::<u32>();
+                self.points = points_earned;
             });
 
         
