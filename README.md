@@ -45,9 +45,20 @@ The eframe natively stores data for us between sessions using the 'save' method.
 
 Our TemplateApp struct stores many different things, the main one being a vector of Tasks. The Task struct has 5 values within it: name (String), description (String), due date (String), priority (PriorityLevel), and completed (bool). PriorityLevel is an enum we defined consisting of low, medium, and high levels to describe the importance of that task. We were also able to implement a match statement for selection on the PriorityLevel for a task from the user entry. 
 
-# Usage Examples
+# Usage Examples and testing locally
 
-To run, clone the repository and go into the TaskHero directory. Run 'cargo build' and then 'cargo run' to launch the app.
+To run, clone the repository and go into the TaskHero directory.
+Make sure you are using the latest version of stable rust by running `rustup update`.
+
+You can run `cargo run --release` to launch the application.
+
+On Linux you need to first run:
+
+`sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev`
+
+On Fedora Rawhide you need to run:
+
+`dnf install clang clang-devel clang-tools-extra libxkbcommon-devel pkg-config openssl-devel libxcb-devel gtk3-devel atk fontconfig-devel`
 
 The left section focuses on the management of tasks. Create Tasks in the upper left corner that will be shown beneath. Tasks are editable by clicking on the "View More Info" button and then clicking the "Edit" button. To complete a task, check the box next to it. To clear all tasks, click the "Clear all tasks" button (this action is irreversible).
 
@@ -59,22 +70,6 @@ The right section shows your acheivements and allows you to set goals for yourse
 
 [![dependency status](https://deps.rs/repo/github/emilk/eframe_template/status.svg)](https://deps.rs/repo/github/emilk/eframe_template)
 [![Build Status](https://github.com/emilk/eframe_template/workflows/CI/badge.svg)](https://github.com/emilk/eframe_template/actions?workflow=CI)
-
-### Testing locally
-
-Information on how the locally run the TaskHero application:
-
-Make sure you are using the latest version of stable rust by running `rustup update`.
-
-`cargo run --release`
-
-On Linux you need to first run:
-
-`sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev`
-
-On Fedora Rawhide you need to run:
-
-`dnf install clang clang-devel clang-tools-extra libxkbcommon-devel pkg-config openssl-devel libxcb-devel gtk3-devel atk fontconfig-devel`
 
 ## Info about Updating egui
 
