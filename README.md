@@ -12,9 +12,19 @@ This project is based on the eframe template provided by the following github re
 
 # Crate dependencies
 
+This project inherits the same dependencies from the eframe template (egui and eframe).
+
 # Directory structure
 
+In the TaskHero directory, we have several subdirectories. The one where we do the most work in under src. In src/app.rs, we configure the GUI and collect and store data.
+
+The 'assets' directory stores various images and icons that are available for us to use.
+
 # Data structures, modules, and functions
+
+The eframe natively stores data for us between sessions using the 'save' method. We had to add the ability to derive both the TemplateApp and Task structs to allow this to happen. Through this, the user's local data is automatically stored when the app is closed and reloaded when the app is oppened.
+
+Our TemplateApp struct stores many different things, the main one being a vector of Tasks. The Task struct has 5 values within it: name (String), description (String), due date (String), priority (PriorityLevel), and completed (bool). PriorityLevel is a struct we defined consisting of low, meduim, and high levels to describe the importance of that task.
 
 # eframe template
 
