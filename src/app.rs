@@ -20,6 +20,12 @@ pub struct TemplateApp {
     new_task_priority: PriorityLevel, // Priority of the new task
     new_task_completed: bool, // Whether the new task is completed
     is_editing: bool, // Flag to indicate if the task is being edited
+    //Challenge achievment message
+    achievement_message: String,
+    //New fields for goal setting
+    bronze_goal:u32,
+    silver_goal:u32,
+    gold_goal:u32,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -44,6 +50,12 @@ impl Default for TemplateApp {
             new_task_priority: PriorityLevel::Low,
             new_task_completed: false,
             is_editing: false,
+            //Default goal values
+            bronze_goal:5,
+            silver_goal:10,
+            gold_goal:20,
+            //Dispay the challenge message
+            achievement_message: String::new(),
         }
     }
 }
@@ -62,6 +74,40 @@ impl TemplateApp {
 
         Default::default()
     }
+    //add fields to track challenge progress
+    fn check_challenges(&mut self) {
+        let bronze_points = 50;
+        let silver_points = 100;
+        let gold_points = 500;
+
+        // Count completed tasks
+        let completed_tasks = self.tasks.iter().filter(|task| task.completed).count();
+
+        // If user has completed the Gold level
+        if self.points >= gold_points && completed_tasks >= self.gold_goal as usize {
+            self.display_achievement("Congrats! You have reached the Gold level!");
+            return;  // Stop further checking once Gold is achieved
+        }
+
+        // If user has completed the Silver level but not Gold
+        if self.points >= silver_points && completed_tasks >= self.silver_goal as usize {
+            self.display_achievement("Congrats! You have reached the Silver level!");
+            return;  // Stop further checking once Silver is achieved
+        }
+
+        // If user has completed the Bronze level but not Silver or Gold
+        if self.points >= bronze_points && completed_tasks >= self.bronze_goal as usize {
+            self.display_achievement("Congrats! You have reached the Bronze level!");
+            return;  // Stop further checking once Bronze is achieved
+        }
+
+        // Generic fallback message if no level is achieved yet
+        self.display_achievement("Keep going! You're progressing toward the next level!");
+    }
+
+    fn display_achievement(&mut self, message: &str) {
+        self.achievement_message = message.to_string(); // Store the achievement message
+    }
 }
 
 impl eframe::App for TemplateApp {
@@ -74,7 +120,28 @@ impl eframe::App for TemplateApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Put your widgets into a `SidePanel`, `TopBottomPanel`, `CentralPanel`, `Window` or `Area`.
         // For inspiration and more examples, go to https://emilk.github.io/egui
+        // Add goal setting UI panel
+         egui::TopBottomPanel::top("goal_settings_panel").show(ctx, |ui| {
+            ui.heading("Set Your Goals");
 
+            // Input fields to set bronze, silver, and gold task goals
+            ui.horizontal(|ui| {
+                ui.label("Bronze Goal: ");
+                ui.add(egui::DragValue::new(&mut self.bronze_goal).speed(1).clamp_range(1..=100));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Silver Goal: ");
+                ui.add(egui::DragValue::new(&mut self.silver_goal).speed(1).clamp_range(1..=100));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Gold Goal: ");
+                ui.add(egui::DragValue::new(&mut self.gold_goal).speed(1).clamp_range(1..=100));
+            });
+
+            ui.separator();
+        });
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
 
@@ -247,6 +314,22 @@ impl eframe::App for TemplateApp {
                     self.tasks.clear();
                 }
             });
+         // add 10 points to user's score per completed task
+                // level 1 is 10 points, level 2 is 20 points, level 3 is 30 points
+        let points_earned = self
+            .tasks
+            .iter()
+            .filter(|task| task.completed)
+            .map(|task| match task.priority {
+                PriorityLevel::Low => 10,
+                PriorityLevel::Medium => 20,
+                PriorityLevel::High => 30,
+                })
+                .sum::<u32>();
+        self.points = points_earned;
+        let completed_tasks = self.tasks.iter().filter(|task| task.completed).count();
+        //check for challenges
+        self.check_challenges(); 
 
         // Create a right side panel for the "Achievements" section.
         egui::SidePanel::right("right_panel")
@@ -255,18 +338,34 @@ impl eframe::App for TemplateApp {
             .max_width(ctx.available_rect().width() / 2.0) // Keeps the width fixed.
             .show(ctx, |ui| {
                 ui.heading("Achievements");
+                //Display the challenge achievement message
+                ui.label(&self.achievement_message);
+                // Display user-defined goal progress
+                ui.label(format!(
+                    "Current Tasks: {} / Bronze Goal: {}",
+                    completed_tasks, self.bronze_goal
+                ));
+                ui.label(format!(
+                    "Current Tasks: {} / Silver Goal: {}",
+                    completed_tasks, self.silver_goal
+                ));
+                ui.label(format!(
+                    "Current Tasks: {} / Gold Goal: {}",
+                    completed_tasks, self.gold_goal
+                ));
                 // Add content related to achievements here, e.g., list of achievements.
-                ui.label("Achievement 1: Task completion streak!");
+                /*ui.label("Achievement 1: Task completion streak!");
                 ui.label("Achievement 2: High priority tasks completed!");
                 // if there are 3 completed tasks, give user bronze status, 5 silver, 10 gold
-                let completed_tasks = self.tasks.iter().filter(|task| task.completed).count();
+                //let completed_tasks = self.tasks.iter().filter(|task| task.completed).count();
                 if completed_tasks >= 10 {
                     ui.label("Achievement 3: Gold status achieved!");
                 } else if completed_tasks >= 5 {
                     ui.label("Achievement 3: Silver status achieved!");
                 } else if completed_tasks >= 3 {
                     ui.label("Achievement 3: Bronze status achieved!");
-                }
+                }*/
+                /* 
                 // add 10 points to user's score per completed task
                 // level 1 is 10 points, level 2 is 20 points, level 3 is 30 points
                 let points_earned = self
@@ -280,6 +379,32 @@ impl eframe::App for TemplateApp {
                     })
                     .sum::<u32>();
                 self.points = points_earned;
+                 //check for challenges
+                self.check_challenges(); */
+                 // Add challenge tracking based on points
+                let bronze_points = 50;
+                let silver_points = 100;
+                let gold_points = 500;
+
+                if self.points >= gold_points {
+                    ui.label("Challenge: Gold level challenge completed!");
+                } else if self.points >= silver_points {
+                    ui.label("Challenge: Silver level challenge completed!");
+                } else if self.points >= bronze_points {
+                    ui.label("Challenge: Bronze level challenge completed!");
+                }
+                //To display challenge info and message,
+                let points_message = format!(
+                    "Bronze: {} points required | {} points to Bronze level\n\
+                     Silver: {} points required | {} points to Silver level\n\
+                     Gold: {} points required | {} points to Gold level",
+                    bronze_points, bronze_points.saturating_sub(self.points),
+                    silver_points, silver_points.saturating_sub(self.points),
+                    gold_points, gold_points.saturating_sub(self.points)
+                );
+                
+                // Display points message here
+                ui.label(&points_message);
             });
 
         
