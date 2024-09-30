@@ -1,5 +1,5 @@
 [package]
-name = "eframe_template"
+name = "task_hero"
 version = "0.1.0"
 authors = ["Deven Allen <dca09692@uga.edu>"]
 edition = "2021"

@@ -20,7 +20,7 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "TaskHero",
         native_options,
-        Box::new(|cc| Ok(Box::new(eframe_template::TemplateApp::new(cc)))),
+        Box::new(|cc| Ok(Box::new(task_hero::TemplateApp::new(cc)))),
     )
 }
 
