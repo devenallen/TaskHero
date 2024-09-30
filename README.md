@@ -26,6 +26,16 @@ The eframe natively stores data for us between sessions using the 'save' method.
 
 Our TemplateApp struct stores many different things, the main one being a vector of Tasks. The Task struct has 5 values within it: name (String), description (String), due date (String), priority (PriorityLevel), and completed (bool). PriorityLevel is a struct we defined consisting of low, meduim, and high levels to describe the importance of that task.
 
+# Usage Examples
+
+To run, clone the repository and go into the TaskHero directory. Run 'cargo build' and then 'cargo run' to launch the app.
+
+The left section focuses on the management of tasks. Create Tasks in the upper left corner that will be shown beneath. Tasks are editable by clicking on the "View More Info" button and then clicking the "Edit" button. To complete a task, check the box next to it. To clear all tasks, click the "Clear all tasks" button (this action is irreversible).
+
+The middle section shows the challenges that you are close to or have completed.
+
+The right section shows your acheivements and allows you to set goals for yourself.
+
 # eframe template
 
 [![dependency status](https://deps.rs/repo/github/emilk/eframe_template/status.svg)](https://deps.rs/repo/github/emilk/eframe_template)
