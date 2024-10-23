@@ -12,6 +12,7 @@ pub struct Task {
     pub due_date: String,
     pub priority: PriorityLevel,
     pub completed: bool,
+    pub completed_date: Option<String>, // add when the task was completed
 }
 
 impl Task {
@@ -32,6 +33,9 @@ pub struct Gamification {
     pub silver_goal: u32,
     pub gold_goal: u32,
     pub achievement_message: String,
+    pub daily_reward: u32,
+    pub daily_reward_message: String,
+    pub weekly_challenge_message: String,
 }
 
 impl Gamification {
@@ -42,6 +46,9 @@ impl Gamification {
             silver_goal: 10,
             gold_goal: 20,
             achievement_message: String::new(),
+            daily_reward: 0,
+            daily_reward_message: String::new(),
+            weekly_challenge_message: String::from("Complete a task every day for a week to earn 100 points!"),
         }
     }
 
@@ -65,7 +72,74 @@ impl Gamification {
         }
     }
 
+    // Add a reqard for a user completing 5, 10, and 15 tasks in one day
+    //    Should reset at the end of the day
+    //    Should be a random reward
+    //    Should be displayed to the user
+    pub fn daily_reward(&mut self, tasks: &[Task]) {
+        // calculate the number of tasks completed within the last 24 hours using the completed_date field
+        let daily_tasks: usize = tasks.iter().filter(|task| {
+            if let Some(completed_date) = &task.completed_date {
+                // check if the task was completed within the last 24 hours
+                // (for simplicity, we'll assume the date format is "YYYY-MM-DD")
+                completed_date == &chrono::Local::now().format("%Y-%m-%d").to_string()
+            } else {
+                false
+            }
+        }).count();
+
+        // if the user completed 15, 10, or 5 tasks in a day, give them 100, 50, or 25 points, respectively
+        if daily_tasks >= 15 {
+            self.display_daily_reward("Congrats! You completed 15 tasks today!");
+        } else if daily_tasks >= 10 {
+            self.display_daily_reward("Congrats! You completed 10 tasks today!");
+        } else if daily_tasks >= 5 {
+            self.display_daily_reward("Congrats! You completed 5 tasks today!");
+        } else {
+            self.display_daily_reward("Keep going! You're making progress!");
+        }
+    }
+
+    //if user has completed a task every day for a week, give them 100 points and display a message
+    pub fn weekly_challenge(&mut self, tasks: &[Task]) {
+        // get the current date
+        let current_date = chrono::Local::now().format("%Y-%m-%d").to_string();
+
+        // get the date 7 days ago
+        let seven_days_ago = chrono::Local::now().checked_sub_signed(chrono::Duration::days(7)).unwrap().format("%Y-%m-%d").to_string();
+
+        // get the number of tasks completed each day in the last 7 days
+        let mut tasks_completed_each_day = vec![0; 7];
+        for task in tasks {
+            if let Some(completed_date) = &task.completed_date {
+                // check if the task was completed within the last 7 days
+                if completed_date >= &seven_days_ago && completed_date <= &current_date {
+                    // calculate the index of the day in the last 7 days
+                    let days_diff = chrono::NaiveDate::parse_from_str(&current_date, "%Y-%m-%d").unwrap()
+                        .signed_duration_since(chrono::NaiveDate::parse_from_str(completed_date, "%Y-%m-%d").unwrap())
+                        .num_days() as usize;
+                    tasks_completed_each_day[6 - days_diff] += 1;
+                }
+            }
+        }
+
+        // if the user has completed a task every day for the last 7 days, give them 100 points
+        if tasks_completed_each_day.iter().all(|&count| count > 0) {
+            self.points += 100;
+            self.display_weekly_challenge("Congrats! You completed a task every day for the last week!");
+        }
+    }
+    
+
     fn display_achievement(&mut self, message: &str) {
         self.achievement_message = message.to_string();
+    }
+
+    fn display_daily_reward(&mut self, message: &str) {
+        self.daily_reward_message = message.to_string();
+    }
+
+    fn display_weekly_challenge(&mut self, message: &str) {
+        self.weekly_challenge_message = message.to_string();
     }
 }
