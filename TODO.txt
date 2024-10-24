@@ -1,0 +1,8 @@
+Daily rewards needs work:
+    - daily points update needs work (it was updating every time the mouse moved because of where I added the points)
+
+Fix the "Details" button under "Tasks"
+    - was working but now isn't?? something to do with deven_v2 branch
+
+Add more details to the Details Report?
+
