@@ -13,7 +13,7 @@ pub struct TemplateApp {
     new_task_completed: bool,   
     is_editing: bool,           // Flag for editing task mode
     gamification: Gamification, // Gamification system
-    detailsReportViewable: bool, // Flag for viewing the details report
+    details_report_viewable: bool, // Flag for viewing the details report
 }
 
 impl Default for TemplateApp {
@@ -28,7 +28,7 @@ impl Default for TemplateApp {
             new_task_completed: false,
             is_editing: false,
             gamification: Gamification::new(), // Initialize gamification
-            detailsReportViewable: false,
+            details_report_viewable: false,
         }
     }
 }
@@ -36,10 +36,19 @@ impl Default for TemplateApp {
 impl TemplateApp {
     /// Called once before the first frame.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        let mut app = Self::default();
+        // if let Some(storage) = cc.storage {
+        //     return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+        // }
+        // Default::default()
         if let Some(storage) = cc.storage {
-            return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
-        }
-        Default::default()
+            app = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+        };
+
+        // Trigger achievements check when app is first loaded
+        app.update_achievements();
+
+        app
     }
 
     /// Function to add a new task
@@ -139,6 +148,7 @@ impl eframe::App for TemplateApp {
             // Display tasks and achievements
             ui.heading("Tasks");
             for (i, task) in self.tasks.iter_mut().enumerate() {
+
                 ui.horizontal(|ui| {
                     ui.checkbox(&mut task.completed, "");
                     // if the task checkbox is checked, update the completed date, otherwise set it to None
@@ -152,8 +162,73 @@ impl eframe::App for TemplateApp {
                         self.selected_task = Some(i);
                     }
                 });
+
             }
 
+            // Check if a task is selected and display its details
+            if let Some(selected_index) = self.selected_task {
+                let selected_task = &mut self.tasks[selected_index]; // Get the selected task
+
+                ui.separator();
+                ui.heading("Task Details");
+
+                // Editable fields for the selected task
+                if self.is_editing {
+                    ui.label("Editing Task:");
+                    ui.horizontal(|ui| {
+                        ui.label("Name: ");
+                        ui.text_edit_singleline(&mut selected_task.name);
+                    });
+                    ui.horizontal(|ui| {
+                        ui.label("Description: ");
+                        ui.text_edit_multiline(&mut selected_task.description);
+                    });
+                    ui.horizontal(|ui| {
+                        ui.label("Due Date: ");
+                        ui.text_edit_singleline(&mut selected_task.due_date); // Assuming due_date is a String
+                    });
+                    ui.horizontal(|ui| {
+                        ui.label("Priority: ");
+                        let mut priority_val = selected_task.priority as u8;
+                        ui.add(egui::Slider::new(&mut (priority_val), 1..=3).text("Level"));
+                        selected_task.priority = match priority_val {
+                            1 => PriorityLevel::Low,
+                            2 => PriorityLevel::Medium,
+                            3 => PriorityLevel::High,
+                            _ => PriorityLevel::Low,
+                        };
+                    });
+
+                    // Save Changes button
+                    if ui.button("Save Changes").clicked() {
+                        self.is_editing = false; // Exit editing mode
+                    }
+
+                    // Cancel Edits button
+                    if ui.button("Cancel Edits").clicked() {
+                        self.is_editing = false; // Exit editing mode
+                    }
+                } else {
+                    // Display read-only fields for the selected task
+                    ui.label(format!("Name: {}", selected_task.name));
+                    ui.label(format!("Description: {}", selected_task.description));
+                    ui.label(format!("Due Date: {}", selected_task.due_date));
+                    ui.label(format!("Priority: {:?}", selected_task.priority));
+                    ui.label(format!("Completed: {}", selected_task.completed));
+
+                    // Edit Task button
+                    if ui.button("Edit Task").clicked() {
+                        self.is_editing = true; // Enter editing mode
+                    }
+                }
+
+                ui.separator();
+
+                // Clear all tasks button
+                if ui.button("Clear All Tasks").clicked() {
+                    self.tasks.clear();
+                }
+            }
             // Check for achievements
             self.update_achievements();
         });
@@ -176,6 +251,29 @@ impl eframe::App for TemplateApp {
             ui.separator();
             // add a progress bar for the gold goal
             ui.add(egui::ProgressBar::new(completed_tasks as f32 / self.gamification.gold_goal as f32).text(format!("Gold Goal: {}/{}", if completed_tasks <= self.gamification.gold_goal as usize { completed_tasks } else {self.gamification.gold_goal as usize}, self.gamification.gold_goal)));
+
+            ui.separator();
+
+            // Add goal setting UI panel
+            ui.heading("Set Your Goals");
+
+            // Input fields to set bronze, silver, and gold task goals
+            ui.horizontal(|ui| {
+                ui.label("Bronze Goal: ");
+                ui.add(egui::DragValue::new(&mut self.gamification.bronze_goal).speed(1).range(1..=self.gamification.silver_goal-1));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Silver Goal: ");
+                ui.add(egui::DragValue::new(&mut self.gamification.silver_goal).speed(1).range(1..=self.gamification.gold_goal-1));
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Gold Goal: ");
+                ui.add(egui::DragValue::new(&mut self.gamification.gold_goal).speed(1).range(1..=1000));
+            });
+
+            ui.separator();
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -204,13 +302,23 @@ impl eframe::App for TemplateApp {
             ui.heading("Weekly Challenge");
             ui.separator();
             ui.label(&self.gamification.weekly_challenge_message);
+
+
+            // // check for the weekly challenge from gamification.rs
+            // let weekly_challenge = self.gamification.weekly_challenge(&self.tasks);
+            // // if the weekly challenge is completed, display a message saying that the weekly challenge is completed
+            // if weekly_challenge {
+            //     ui.label("Weekly Challenge Completed!");
+            // } else { // if the weekly challenge is not completed, display a message saying that the weekly challenge is not completed
+            //     ui.label("Weekly Challenge Not Completed.");
+            // }
         });
 
         // Make a lower panel with a button titled "Tasks Report"
         egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
             // if the button is clicked, display a report of metrics of tasks
-            if ui.button("Tasks Report").clicked() {self.detailsReportViewable = true;}
-            if self.detailsReportViewable {
+            if ui.button("Tasks Report").clicked() {self.details_report_viewable = true;}
+            if self.details_report_viewable {
                 // put a report of metrics of tasks, including total number, % completed, and % of each priority level on the screen
                 let total_tasks = self.tasks.len();
                 let completed_tasks = self.tasks.iter().filter(|task| task.completed).count();
@@ -230,7 +338,7 @@ impl eframe::App for TemplateApp {
 
                 // add a button to close the report
                 if ui.button("Close Report").clicked() {
-                    self.detailsReportViewable = false;
+                    self.details_report_viewable = false;
                 }
                 
             } else { // print out a message saying that the report is available

@@ -72,7 +72,7 @@ impl Gamification {
         }
     }
 
-    // Add a reqard for a user completing 5, 10, and 15 tasks in one day
+    // Add a reward for a user completing 5, 10, and 15 tasks in one day
     //    Should reset at the end of the day
     //    Should be a random reward
     //    Should be displayed to the user
@@ -91,12 +91,16 @@ impl Gamification {
         // if the user completed 15, 10, or 5 tasks in a day, give them 100, 50, or 25 points, respectively
         if daily_tasks >= 15 {
             self.display_daily_reward("Congrats! You completed 15 tasks today!");
+            self.daily_reward = 175;
         } else if daily_tasks >= 10 {
             self.display_daily_reward("Congrats! You completed 10 tasks today!");
+            self.daily_reward = 75;
         } else if daily_tasks >= 5 {
             self.display_daily_reward("Congrats! You completed 5 tasks today!");
+            self.daily_reward = 25;
         } else {
             self.display_daily_reward("Keep going! You're making progress!");
+            self.daily_reward = 0;
         }
     }
 
