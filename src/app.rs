@@ -81,35 +81,9 @@ impl TemplateApp {
         // check the daily goal
         self.gamification.daily_reward(&self.tasks);
     }
-}
 
-impl eframe::App for TemplateApp {
-    /// Save app state before shutdown.
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, eframe::APP_KEY, self);
-    }
-
-    /// Update the UI
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-
-        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            // The top panel is often a good place for a menu bar:
-
-            egui::menu::bar(ui, |ui| {
-                // NOTE: no File->Quit on web pages!
-                let is_web = cfg!(target_arch = "wasm32");
-                if !is_web {
-                    ui.menu_button("File", |ui| {
-                        if ui.button("Quit").clicked() {
-                            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
-                        }
-                    });
-                    ui.add_space(16.0);
-                }
-            });
-        });
-
-        // Task creation and display UI
+    // function for left panel logic
+    fn left_panel_logic(&mut self, ctx: &egui::Context) {
         egui::SidePanel::left("left_panel").show(ctx, |ui| {
             ui.heading("Add a Task");
 
@@ -232,8 +206,10 @@ impl eframe::App for TemplateApp {
             // Check for achievements
             self.update_achievements();
         });
+    }
 
-        // Achievements UI
+    // function for right panel logic
+    fn right_panel_logic(&mut self, ctx: &egui::Context) {
         egui::SidePanel::right("right_panel").show(ctx, |ui| {
             ui.heading("Achievements");
             ui.separator();
@@ -270,12 +246,15 @@ impl eframe::App for TemplateApp {
 
             ui.horizontal(|ui| {
                 ui.label("Gold Goal: ");
-                ui.add(egui::DragValue::new(&mut self.gamification.gold_goal).speed(1).range(1..=1000));
+                ui.add(egui::DragValue::new(&mut self.gamification.gold_goal).speed(1).range(1..=100));
             });
 
             ui.separator();
         });
+    }
 
+    // function for central panel logic
+    fn central_panel_logic(&mut self, ctx: &egui::Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
@@ -303,18 +282,11 @@ impl eframe::App for TemplateApp {
             ui.separator();
             ui.label(&self.gamification.weekly_challenge_message);
 
-
-            // // check for the weekly challenge from gamification.rs
-            // let weekly_challenge = self.gamification.weekly_challenge(&self.tasks);
-            // // if the weekly challenge is completed, display a message saying that the weekly challenge is completed
-            // if weekly_challenge {
-            //     ui.label("Weekly Challenge Completed!");
-            // } else { // if the weekly challenge is not completed, display a message saying that the weekly challenge is not completed
-            //     ui.label("Weekly Challenge Not Completed.");
-            // }
         });
+    }
 
-        // Make a lower panel with a button titled "Tasks Report"
+    // function for bottom panel logic
+    fn bottom_panel_logic(&mut self, ctx: &egui::Context) {
         egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
             // if the button is clicked, display a report of metrics of tasks
             if ui.button("Tasks Report").clicked() {self.details_report_viewable = true;}
@@ -346,5 +318,46 @@ impl eframe::App for TemplateApp {
 
             }
         });
+    }
+}
+
+impl eframe::App for TemplateApp {
+    /// Save app state before shutdown.
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        eframe::set_value(storage, eframe::APP_KEY, self);
+    }
+
+    /// Update the UI
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            // The top panel is often a good place for a menu bar:
+
+            egui::menu::bar(ui, |ui| {
+                // NOTE: no File->Quit on web pages!
+                let is_web = cfg!(target_arch = "wasm32");
+                if !is_web {
+                    ui.menu_button("File", |ui| {
+                        if ui.button("Quit").clicked() {
+                            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                        }
+                    });
+                    ui.add_space(16.0);
+                }
+            });
+        });
+
+        // task creation/ info UI
+        self.left_panel_logic(ctx);
+
+        // achievement UI
+        self.right_panel_logic(ctx);
+
+        // central tracking UI
+        self.central_panel_logic(ctx);
+
+        // task report UI
+        self.bottom_panel_logic(ctx);
+
     }
 }

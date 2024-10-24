@@ -91,10 +91,10 @@ impl Gamification {
         // if the user completed 15, 10, or 5 tasks in a day, give them 100, 50, or 25 points, respectively
         if daily_tasks >= 15 {
             self.display_daily_reward("Congrats! You completed 15 tasks today!");
-            self.daily_reward = 175;
+            self.daily_reward = 100;
         } else if daily_tasks >= 10 {
             self.display_daily_reward("Congrats! You completed 10 tasks today!");
-            self.daily_reward = 75;
+            self.daily_reward = 50;
         } else if daily_tasks >= 5 {
             self.display_daily_reward("Congrats! You completed 5 tasks today!");
             self.daily_reward = 25;
@@ -129,7 +129,7 @@ impl Gamification {
 
         // if the user has completed a task every day for the last 7 days, give them 100 points
         if tasks_completed_each_day.iter().all(|&count| count > 0) {
-            self.points += 100;
+            self.points = 100;
             self.display_weekly_challenge("Congrats! You completed a task every day for the last week!");
         }
     }
