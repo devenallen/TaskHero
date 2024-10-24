@@ -1,3 +1,5 @@
+use std::ptr::null;
+
 use crate::gamification::{Gamification, PriorityLevel, Task}; // Use Task and PriorityLevel from gamification.rs
 use chrono::Local;
 
@@ -302,13 +304,67 @@ impl TemplateApp {
                 let medium_priority_percentage = (medium_priority_tasks as f32 / total_tasks as f32) * 100.0;
                 let high_priority_percentage = (high_priority_tasks as f32 / total_tasks as f32) * 100.0;
                 // put the above metrics on the screen
+                //To add new details about the tasks like Total Points Earned,Incomplete Tasks,Average Task Priority,Most Common Task Priority,Upcoming Tasks
+                 // 1. Total Points Earned
+                let total_points: u32 = self.tasks.iter()
+                .filter(|task| task.completed)
+                .map(|task| task.points())
+                .sum();
+                // 2. Incomplete Tasks
+                let incomplete_tasks = total_tasks - completed_tasks;
+                let incomplete_percentage = if total_tasks > 0 {
+                    (incomplete_tasks as f32 / total_tasks as f32) * 100.0
+                } else {
+                    0.0
+                };
+                // 3. Average Task Priority
+                let total_priority: u32 = self.tasks.iter()
+                .map(|task| task.priority as u32)
+                .sum();
+                let avg_priority = if total_tasks > 0 {
+                    total_priority as f32 / total_tasks as f32
+                } else {
+                    0.0
+                };
+                 // 4. Most Common Task Priority
+                let mut priority_counts = [0; 3]; // For Low, Medium, High
+                for task in &self.tasks {
+                    match task.priority {
+                        PriorityLevel::Low => priority_counts[0] += 1,
+                        PriorityLevel::Medium => priority_counts[1] += 1,
+                        PriorityLevel::High => priority_counts[2] += 1,
+                    }
+                }
+                let most_common_priority = if priority_counts[0] >= priority_counts[1] && priority_counts[0] >= priority_counts[2] {
+                    "Low"
+                } else if priority_counts[1] >= priority_counts[0] && priority_counts[1] >= priority_counts[2] {
+                    "Medium"
+                } else {
+                    "High"
+                };
+                 // 5. Upcoming Tasks (with future due dates)
+                let upcoming_tasks = self.tasks.iter()
+                 .filter(|task| {
+                     // Parse the due date in the format MM.DD.YYYY
+                     if let Ok(due_date) = chrono::NaiveDate::parse_from_str(&task.due_date, "%m.%d.%Y") {
+                         due_date > chrono::Local::now().naive_local().date() // Compare the due date with the current date
+                     } else {
+                         false // If the date parsing fails, it's not an upcoming task
+                     }
+                })
+                 .count();
                 ui.label(format!("Total Tasks: {}", total_tasks));
                 ui.label(format!("Completed Tasks: {} ({:.2}%)", completed_tasks, completed_percentage));
                 ui.label(format!("Low Priority Tasks: {} ({:.2}%)", low_priority_tasks, low_priority_percentage));
                 ui.label(format!("Medium Priority Tasks: {} ({:.2}%)", medium_priority_tasks, medium_priority_percentage));
                 ui.label(format!("High Priority Tasks: {} ({:.2}%)", high_priority_tasks, high_priority_percentage));
-
-                // add a button to close the report
+                //New metric
+                ui.label(format!("Total Points Earned: {}", total_points));
+                ui.label(format!("Incomplete Tasks: {} ({:.2}%)", incomplete_tasks, incomplete_percentage));
+                ui.label(format!("Average Task Priority: {:.2}", avg_priority));
+                ui.label(format!("Most Common Task Priority: {}", most_common_priority));
+                ui.label(format!("Upcoming Tasks: {}", upcoming_tasks));
+                 //add a button to close the report
                 if ui.button("Close Report").clicked() {
                     self.details_report_viewable = false;
                 }
