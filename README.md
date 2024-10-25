@@ -30,7 +30,12 @@ In the TaskHero directory, we have several subdirectories. The one where we do t
 
 - lib.rs: This file is the entry point for the library, setting up the project.
 
-- app.rs: This file is where most of the "magic" happens. In other words, this is the main application file where all core functionality resides. It defines the TemplateApp struct to manage tasks, including their state, creation, and completion. It also implements features
+- app.rs: This file is where most of the "magic" happens. In other words, this is the main application file where all core 
+functionality resides. This is where you will see all of your task data, achievements, challenges, customized features, etc.
+It defines the TemplateApp struct to manage tasks, including their state, creation, and completion. It also implements features
+from the following module:
+
+- gamification.rs: This file is used for the gamified pieces of our TaskHero application. This includes functions
 such as:
 - adding, editing, and viewing tasks with their respective fields.
 - shows a points system where task completion grants points based on priority level.
@@ -38,6 +43,27 @@ such as:
 - allows persistence with data, so when you close the window and reopen it, your "progress" is saved.
 
 The 'assets' directory stores various images and icons that are available for us to use.
+
+# Updates for v2
+
+In the second version of our application, we were able to fine tune some of the functionality. 
+
+- We separated our functionality into two main components: app.rs and gamification.rs (explained above). These are the two
+main modules/ files we use for implementation. Gamification will be the gamified aspects, whereas app.rs is going to be used
+for the rendering and updates to the gui application.
+
+- Added additional functionality with advanced challenges: this gives the users the ability to see "reward points" based on 
+daily and weekly tasks they complete. Right now, it is set up to where you earn points if you complete 5, 10, and 15 tasks in a day.
+You also get points if you complete 1 task a day for 7 days straight
+
+- Added the functionality to allow for users to see progress for their bronze, silver, and gold achievement levels accordingly.
+
+- All base functionality from v1 is still implemented, with minor tweaks and improvements, such as the customized goal setting.
+Now, users only have the option to increase their goals based on the next level up (ex. bronze goal cannot be set over 
+9 tasks if the silver goal is 10 tasks itself.)
+
+- We added some self test cases that we thought would be useful for usage in seeing our progress. These tasks cases showcase some of our main features for v1 and v2 for TaskHero. These are not rust provided tests, but rather user guided tests, so they
+will help us see what we are doing right and wrong. This is given in the file "TaskHero_TestCases.xlsx".
 
 # Data structures, modules, and functions
 
