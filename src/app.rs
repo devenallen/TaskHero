@@ -304,7 +304,7 @@ impl TemplateApp {
             ui.separator();
 
             // Add goal setting UI panel
-            ui.heading("Set Your Goals");
+            ui.heading("Customize Your Goals");
 
             // Input fields to set bronze, silver, and gold task goals
             ui.horizontal(|ui| {
@@ -314,12 +314,12 @@ impl TemplateApp {
 
             ui.horizontal(|ui| {
                 ui.label("Silver Goal: ");
-                ui.add(egui::DragValue::new(&mut self.gamification.silver_goal).speed(1).range(1..=self.gamification.gold_goal-1));
+                ui.add(egui::DragValue::new(&mut self.gamification.silver_goal).speed(1).range(self.gamification.bronze_goal+1..=self.gamification.gold_goal-1));
             });
 
             ui.horizontal(|ui| {
                 ui.label("Gold Goal: ");
-                ui.add(egui::DragValue::new(&mut self.gamification.gold_goal).speed(1).range(1..=100));
+                ui.add(egui::DragValue::new(&mut self.gamification.gold_goal).speed(1).range(self.gamification.silver_goal+1..=100));
             });
 
             ui.separator();
