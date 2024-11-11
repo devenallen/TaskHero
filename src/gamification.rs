@@ -1,4 +1,5 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+/// Priority levels for tasks
 pub enum PriorityLevel {
     Low = 1,
     Medium = 2,
@@ -6,6 +7,7 @@ pub enum PriorityLevel {
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
+/// Task struct with fields for name, description, due date, priority level, and completion status
 pub struct Task {
     pub name: String,
     pub description: String,
@@ -15,8 +17,9 @@ pub struct Task {
     pub completed_date: Option<String>, // add when the task was completed
 }
 
+/// Implementation of Task struct with a method to calculate points based on priority level
 impl Task {
-    // Helper function to calculate points based on priority level
+    /// Helper function to calculate points based on priority level
     pub fn points(&self) -> u32 {
         match self.priority {
             PriorityLevel::Low => 10,
@@ -27,6 +30,7 @@ impl Task {
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
+/// Gamification struct with fields for points, goals, and achievement messages
 pub struct Gamification {
     pub points: u32,
     pub bronze_goal: u32,
@@ -38,7 +42,9 @@ pub struct Gamification {
     pub weekly_challenge_message: String,
 }
 
+/// Implementation of Gamification struct with methods to check challenges, daily rewards, and weekly challenges
 impl Gamification {
+    /// Helper function to create a new instance of Gamification
     pub fn new() -> Self {
         Gamification {
             points: 0,
@@ -52,14 +58,19 @@ impl Gamification {
         }
     }
 
-    // Check for challenge achievements
+    /// Helper function to check the user's progress and display achievement messages
+    /// based on the number of completed tasks and total points
+    /// 
+    /// # Arguments
+    /// 
+    /// * `tasks` - A slice of Task structs representing the user's tasks
     pub fn check_challenges(&mut self, tasks: &[Task]) {
         let bronze_points = 50;
         let silver_points = 100;
         let gold_points = 500;
 
-        let completed_tasks = tasks.iter().filter(|task| task.completed).count();
-        self.points = tasks.iter().filter(|task| task.completed).map(Task::points).sum();
+        let completed_tasks = tasks.iter().filter(|task| task.completed).count(); // count the number of completed tasks
+        self.points = tasks.iter().filter(|task| task.completed).map(Task::points).sum(); // calculate the total points
 
         if self.points >= gold_points && completed_tasks >= self.gold_goal as usize {
             self.display_achievement("Congrats! You have reached the Gold level!");
@@ -72,16 +83,18 @@ impl Gamification {
         }
     }
 
-    // Add a reward for a user completing 5, 10, and 15 tasks in one day
-    //    Should reset at the end of the day
-    //    Should be a random reward
-    //    Should be displayed to the user
+    /// Helper function to calculate the daily reward based on the number of tasks completed in a day
+    /// and display a message to the user
+    /// 
+    /// # Arguments
+    /// 
+    /// * `tasks` - A slice of Task structs representing the user's tasks
     pub fn daily_reward(&mut self, tasks: &[Task]) {
-        // calculate the number of tasks completed within the last 24 hours using the completed_date field
+        // calculate the number of tasks completed within the last day using the completed_date field
         let daily_tasks: usize = tasks.iter().filter(|task| {
             if let Some(completed_date) = &task.completed_date {
-                // check if the task was completed within the last 24 hours
-                // (for simplicity, we'll assume the date format is "YYYY-MM-DD")
+                // check if the task was completed within the last day
+                // (for simplicity, assume the date format is "YYYY-MM-DD")
                 completed_date == &chrono::Local::now().format("%Y-%m-%d").to_string()
             } else {
                 false
@@ -104,7 +117,12 @@ impl Gamification {
         }
     }
 
-    //if user has completed a task every day for a week, give them 100 points and display a message
+    /// Helper function to calculate the weekly challenge based on the number of tasks completed each day
+    /// in the last 7 days and display a message to the user
+    /// 
+    /// # Arguments
+    /// 
+    /// * `tasks` - A slice of Task structs representing the user's tasks
     pub fn weekly_challenge(&mut self, tasks: &[Task]) {
         // get the current date
         let current_date = chrono::Local::now().format("%Y-%m-%d").to_string();
@@ -135,14 +153,17 @@ impl Gamification {
     }
     
 
+    /// Helper function to display an achievement message to the user
     fn display_achievement(&mut self, message: &str) {
         self.achievement_message = message.to_string();
     }
 
+    /// Helper function to display a daily reward message to the user
     fn display_daily_reward(&mut self, message: &str) {
         self.daily_reward_message = message.to_string();
     }
 
+    /// Helper function to display a weekly challenge message to the user
     fn display_weekly_challenge(&mut self, message: &str) {
         self.weekly_challenge_message = message.to_string();
     }

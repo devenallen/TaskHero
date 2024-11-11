@@ -1,42 +1,66 @@
 use std::ptr::null;
 
-use crate::gamification::{Gamification, PriorityLevel, Task}; // Use Task and PriorityLevel from gamification.rs
+// In gamification.rs
+use crate::gamification::{Gamification, PriorityLevel, Task};
+
 use chrono::Local;
 
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
+
+/// This struct represents the main application state.
+/// It contains the list of tasks, the selected task index, and the fields for creating a new task.
 pub struct TemplateApp {
-    tasks: Vec<Task>,           // List of tasks
-    selected_task: Option<usize>, // Index of selected task
-    new_task_name: String,      // Fields for creating a new task
-    new_task_description: String,
-    new_task_due_date: String,
-    new_task_priority: PriorityLevel,
-    new_task_completed: bool,   
-    is_editing: bool,           // Flag for editing task mode
-    gamification: Gamification, // Gamification system
-    details_report_viewable: bool, // Flag for viewing the details report
+    tasks: Vec<Task>,                 // List of tasks
+    selected_task: Option<usize>,     // Index of selected task
+    new_task_name: String,            // Fields for creating a new task
+    new_task_description: String,     // Description of the new task
+    new_task_due_date: String,        // Due date of the new task
+    new_task_priority: PriorityLevel, // Priority level of the new task
+    new_task_completed: bool,         // Flag for new task completion
+    is_editing: bool,                 // Flag for editing task mode
+    gamification: Gamification,       // Gamification system
+    details_report_viewable: bool,    // Flag for viewing the details report
 }
 
+/// Implement the Default trait for TemplateApp to provide a default state.
 impl Default for TemplateApp {
     fn default() -> Self {
         Self {
-            tasks: Vec::new(),
-            selected_task: None,
-            new_task_name: String::new(),
-            new_task_description: String::new(),
-            new_task_due_date: String::new(),
-            new_task_priority: PriorityLevel::Low,
-            new_task_completed: false,
-            is_editing: false,
-            gamification: Gamification::new(), // Initialize gamification
-            details_report_viewable: false,
+            tasks: Vec::new(),                     // Initialize tasks list
+            selected_task: None,                   // Initialize selected task index
+            new_task_name: String::new(),          // Initialize new task fields
+            new_task_description: String::new(),   // Initialize new task fields
+            new_task_due_date: String::new(),      // Initialize new task fields
+            new_task_priority: PriorityLevel::Low, // Initialize new task fields
+            new_task_completed: false,             // Initialize new task fields
+            is_editing: false,                     // Initialize editing mode
+            gamification: Gamification::new(),     // Initialize gamification
+            details_report_viewable: false,        // Initialize details report viewable flag
         }
     }
 }
 
+/// Implement the TemplateApp struct.
+/// This struct contains the main application logic and UI layout.
 impl TemplateApp {
-    /// Called once before the first frame.
+
+    /// This function creates a new instance of the TemplateApp struct.
+    /// It initializes the app state and loads the state from storage if available.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `cc` - The eframe::CreationContext containing the storage for the app state.
+    /// 
+    /// # Returns
+    /// 
+    /// A new instance of the TemplateApp struct.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// let app = TemplateApp::new(&cc);
+    /// ```
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let mut app = Self::default();
         // if let Some(storage) = cc.storage {
@@ -53,7 +77,20 @@ impl TemplateApp {
         app
     }
 
-    /// Function to add a new task
+    /// This function adds a new task to the task list.
+    /// It checks if the task name, description, and due date are not empty before adding the task.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// app.add_task();
+    /// ```
+    /// 
+    /// # Notes
+    /// 
+    /// This function modifies the app state by adding a new task to the task list.
+    /// It also clears the input fields after adding the task.
+    /// 
     fn add_task(&mut self) {
         if !self.new_task_name.is_empty()
             && !self.new_task_description.is_empty()
@@ -77,14 +114,37 @@ impl TemplateApp {
         }
     }
 
-    /// Function to update achievements and points
+    /// This function updates the achievements based on the task list.
+    /// It uses the gamification system to check challenges and daily rewards.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// app.update_achievements();
+    /// ```
+    /// 
+    /// # Notes
+    /// 
+    /// This function modifies the app state by updating the achievement messages and points.
+    /// 
     fn update_achievements(&mut self) {
         self.gamification.check_challenges(&self.tasks); // Use gamification system to check challenges
         // check the daily goal
         self.gamification.daily_reward(&self.tasks);
     }
 
-    // function for left panel logic
+    /// This function handles the logic for the left panel of the UI.
+    /// It contains the task creation form, task list, and task details.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `ctx` - The egui::Context for the UI.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// app.left_panel_logic(&ctx);
+    /// ```
     fn left_panel_logic(&mut self, ctx: &egui::Context) {
         egui::SidePanel::left("left_panel").show(ctx, |ui| {
             ui.heading("Add a Task");
@@ -210,7 +270,18 @@ impl TemplateApp {
         });
     }
 
-    // function for right panel logic
+    /// This function handles the logic for the right panel of the UI.
+    /// It contains the achievements, task progress, and goal setting UI.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `ctx` - The egui::Context for the UI.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// app.right_panel_logic(&ctx);
+    /// ```
     fn right_panel_logic(&mut self, ctx: &egui::Context) {
         egui::SidePanel::right("right_panel").show(ctx, |ui| {
             ui.heading("Achievements");
@@ -255,7 +326,18 @@ impl TemplateApp {
         });
     }
 
-    // function for central panel logic
+    /// This function handles the logic for the central panel of the UI.
+    /// It contains the daily rewards, weekly challenges, and task tracking UI.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `ctx` - The egui::Context for the UI.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// app.central_panel_logic(&ctx);
+    /// ```
     fn central_panel_logic(&mut self, ctx: &egui::Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
@@ -287,7 +369,18 @@ impl TemplateApp {
         });
     }
 
-    // function for bottom panel logic
+    /// This function handles the logic for the bottom panel of the UI.
+    /// It contains the tasks report and metrics display.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `ctx` - The egui::Context for the UI.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// app.bottom_panel_logic(&ctx);
+    /// ```
     fn bottom_panel_logic(&mut self, ctx: &egui::Context) {
         egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
             // if the button is clicked, display a report of metrics of tasks
@@ -377,13 +470,36 @@ impl TemplateApp {
     }
 }
 
+/// Implement the eframe::App trait for the TemplateApp struct.
+/// This trait provides the necessary methods to run the app and update the UI.
 impl eframe::App for TemplateApp {
-    /// Save app state before shutdown.
+    /// Save the app state to storage.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `storage` - The eframe::Storage to save the app state.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// app.save(&mut storage);
+    /// ```
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         eframe::set_value(storage, eframe::APP_KEY, self);
     }
 
-    /// Update the UI
+    /// Update the app state and UI.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `ctx` - The egui::Context for the UI.
+    /// * `frame` - The eframe::Frame for the UI.
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// app.update(&ctx, &mut frame);
+    /// ```
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
