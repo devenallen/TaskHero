@@ -65,6 +65,14 @@ Now, users only have the option to increase their goals based on the next level 
 - We added some self test cases that we thought would be useful for usage in seeing our progress. These tasks cases showcase some of our main features for v1 and v2 for TaskHero. These are not rust provided tests, but rather user guided tests, so they
 will help us see what we are doing right and wrong. This is given in the file "TaskHero_TestCases.xlsx".
 
+# Updates for v3
+
+For our v3 release, we finished up the source code for our TaskHero application. This was mostly completed from last version's release, but we made sure everything was working smoothly and customization was available. 
+
+We added a working dockerfile to allow for that usage. Details on running with docker can be found below.
+
+We also made sure that proper project documentation was added and completed for this release. 
+
 # Data structures, modules, and functions
 
 The eframe natively stores data for us between sessions using the 'save' method. We had to add the ability to derive both the TemplateApp and Task structs to allow this to happen. Through this, the user's local data is automatically stored when the app is closed and reloaded when the app is oppened.
@@ -72,6 +80,14 @@ The eframe natively stores data for us between sessions using the 'save' method.
 Our TemplateApp struct stores many different things, the main one being a vector of Tasks. The Task struct has 5 values within it: name (String), description (String), due date (String), priority (PriorityLevel), and completed (bool). PriorityLevel is an enum we defined consisting of low, medium, and high levels to describe the importance of that task. We were also able to implement a match statement for selection on the PriorityLevel for a task from the user entry. 
 
 # Usage Examples and testing locally
+
+If you want to use docker to run this application, you first have to build it. To build:
+within the main directory, run this command:
+'docker build -t task_hero .'
+This may take a few minutes to build. Once this is completed, run the following command:
+'docker run -d -p 8080:80 task_hero'
+
+If both of these are successful, you should be able to open your browser and go to 'localhost:8080' and see our application.
 
 To run, clone the repository and go into the TaskHero directory.
 Make sure you are using the latest version of stable rust by running `rustup update`.
@@ -90,7 +106,7 @@ The left section focuses on the management of tasks. Create Tasks in the upper l
 
 The middle section shows the challenges that you are close to or have completed.
 
-The right section shows your acheivements and allows you to set goals for yourself.
+The right section shows your achievements and allows you to set goals for yourself.
 
 # eframe template
 
