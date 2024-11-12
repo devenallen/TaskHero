@@ -81,6 +81,14 @@ Our TemplateApp struct stores many different things, the main one being a vector
 
 # Usage Examples and testing locally
 
+If you want to use docker to run this application, you first have to build it. To build:
+within the main directory, run this command:
+'docker build -t task_hero .'
+This may take a few minutes to build. Once this is completed, run the following command:
+'docker run -d -p 8080:80 task_hero'
+
+If both of these are successful, you should be able to open your browser and go to 'localhost:8080' and see our application.
+
 To run, clone the repository and go into the TaskHero directory.
 Make sure you are using the latest version of stable rust by running `rustup update`.
 
