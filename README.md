@@ -65,6 +65,14 @@ Now, users only have the option to increase their goals based on the next level 
 - We added some self test cases that we thought would be useful for usage in seeing our progress. These tasks cases showcase some of our main features for v1 and v2 for TaskHero. These are not rust provided tests, but rather user guided tests, so they
 will help us see what we are doing right and wrong. This is given in the file "TaskHero_TestCases.xlsx".
 
+# Updates for v3
+
+For our v3 release, we finished up the source code for our TaskHero application. This was mostly completed from last version's release, but we made sure everything was working smoothly and customization was available. 
+
+We added a working dockerfile to allow for that usage. Details on running with docker can be found below.
+
+We also made sure that proper project documentation was added and completed for this release. 
+
 # Data structures, modules, and functions
 
 The eframe natively stores data for us between sessions using the 'save' method. We had to add the ability to derive both the TemplateApp and Task structs to allow this to happen. Through this, the user's local data is automatically stored when the app is closed and reloaded when the app is oppened.
@@ -90,7 +98,7 @@ The left section focuses on the management of tasks. Create Tasks in the upper l
 
 The middle section shows the challenges that you are close to or have completed.
 
-The right section shows your acheivements and allows you to set goals for yourself.
+The right section shows your achievements and allows you to set goals for yourself.
 
 # eframe template
 
