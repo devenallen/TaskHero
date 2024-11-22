@@ -20,6 +20,12 @@ pub struct TemplateApp {
 
 /// Implement the Default trait for TemplateApp to provide a default state.
 impl Default for TemplateApp {
+    /// Create a new instance of TemplateApp with default values.
+    /// 
+    /// # Returns
+    /// 
+    /// A new instance of TemplateApp with default values.
+    /// 
     fn default() -> Self {
         Self {
             tasks: Vec::new(),                     // Initialize tasks list

@@ -336,4 +336,34 @@ mod tests {
             "Keep going! You're progressing toward the next level!"
         );
     }
+
+    #[test]
+    fn test_daily_reward_exact_thresholds() {
+        let today = Local::now().format("%Y-%m-%d").to_string();
+
+        let tasks: Vec<Task> = (0..15)
+            .map(|i| Task {
+                name: format!("Task {}", i + 1),
+                description: "Completed today".to_string(),
+                due_date: today.clone(),
+                priority: PriorityLevel::Low,
+                completed: true,
+                completed_date: Some(today.clone()),
+            })
+            .collect();
+
+        let mut gamification = Gamification::new();
+
+        // Test for 5 tasks
+        gamification.daily_reward(&tasks[0..5]);
+        assert_eq!(gamification.daily_reward, 25);
+
+        // Test for 10 tasks
+        gamification.daily_reward(&tasks[0..10]);
+        assert_eq!(gamification.daily_reward, 50);
+
+        // Test for 15 tasks
+        gamification.daily_reward(&tasks[0..15]);
+        assert_eq!(gamification.daily_reward, 100);
+    }
 }
