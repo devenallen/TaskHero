@@ -168,3 +168,172 @@ impl Gamification {
         self.weekly_challenge_message = message.to_string();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::{Duration, Local};
+
+    #[test]
+    fn test_task_points() {
+        let low_priority_task = Task {
+            name: "Task 1".to_string(),
+            description: "A low priority task".to_string(),
+            due_date: "2024-11-23".to_string(),
+            priority: PriorityLevel::Low,
+            completed: true,
+            completed_date: None,
+        };
+        assert_eq!(low_priority_task.points(), 10);
+
+        let medium_priority_task = Task {
+            name: "Task 2".to_string(),
+            description: "A medium priority task".to_string(),
+            due_date: "2024-11-23".to_string(),
+            priority: PriorityLevel::Medium,
+            completed: true,
+            completed_date: None,
+        };
+        assert_eq!(medium_priority_task.points(), 20);
+
+        let high_priority_task = Task {
+            name: "Task 3".to_string(),
+            description: "A high priority task".to_string(),
+            due_date: "2024-11-23".to_string(),
+            priority: PriorityLevel::High,
+            completed: true,
+            completed_date: None,
+        };
+        assert_eq!(high_priority_task.points(), 30);
+    }
+
+    #[test]
+    fn test_gamification_check_challenges() {
+        let tasks = vec![
+            Task {
+                name: "Task 1".to_string(),
+                description: "A completed task".to_string(),
+                due_date: "2024-11-23".to_string(),
+                priority: PriorityLevel::Low,
+                completed: true,
+                completed_date: None,
+            },
+            Task {
+                name: "Task 2".to_string(),
+                description: "Another completed task".to_string(),
+                due_date: "2024-11-23".to_string(),
+                priority: PriorityLevel::Medium,
+                completed: true,
+                completed_date: None,
+            },
+        ];
+
+        let mut gamification = Gamification::new();
+        gamification.check_challenges(&tasks);
+
+        assert_eq!(gamification.points, 30); // 10 (Low) + 20 (Medium)
+        assert_eq!(
+            gamification.achievement_message,
+            "Keep going! You're progressing toward the next level!"
+        );
+    }
+
+    #[test]
+    fn test_gamification_daily_reward() {
+        let today = Local::now().format("%Y-%m-%d").to_string();
+        let tasks = vec![
+            Task {
+                name: "Task 1".to_string(),
+                description: "Completed today".to_string(),
+                due_date: today.clone(),
+                priority: PriorityLevel::High,
+                completed: true,
+                completed_date: Some(today.clone()),
+            },
+            Task {
+                name: "Task 2".to_string(),
+                description: "Another completed today".to_string(),
+                due_date: today.clone(),
+                priority: PriorityLevel::Medium,
+                completed: true,
+                completed_date: Some(today.clone()),
+            },
+        ];
+
+        let mut gamification = Gamification::new();
+        gamification.daily_reward(&tasks);
+
+        assert_eq!(gamification.daily_reward, 0); // Less than 5 tasks
+        assert_eq!(
+            gamification.daily_reward_message,
+            "Keep going! You're making progress!"
+        );
+    }
+
+    #[test]
+    fn test_gamification_weekly_challenge() {
+        let today = Local::now().format("%Y-%m-%d").to_string();
+
+        // Generate tasks completed for each of the last 7 days
+        let tasks: Vec<Task> = (0..7)
+            .map(|day_offset| {
+                let date = Local::now()
+                    .checked_sub_signed(Duration::days(day_offset))
+                    .unwrap()
+                    .format("%Y-%m-%d")
+                    .to_string();
+
+                Task {
+                    name: format!("Task {}", day_offset + 1),
+                    description: "Completed task".to_string(),
+                    due_date: date.clone(),
+                    priority: PriorityLevel::Medium,
+                    completed: true,
+                    completed_date: Some(date),
+                }
+            })
+            .collect();
+
+        let mut gamification = Gamification::new();
+        gamification.weekly_challenge(&tasks);
+
+        // Expecting 100 points because a task was completed each day for the last 7 days
+        assert_eq!(gamification.points, 100);
+        assert_eq!(
+            gamification.weekly_challenge_message,
+            "Congrats! You completed a task every day for the last week!"
+        );
+    }
+
+
+    #[test]
+    fn test_gamification_achievements() {
+        let tasks = vec![
+            Task {
+                name: "Task 1".to_string(),
+                description: "A completed high priority task".to_string(),
+                due_date: "2024-11-23".to_string(),
+                priority: PriorityLevel::High,
+                completed: true,
+                completed_date: None,
+            },
+            Task {
+                name: "Task 2".to_string(),
+                description: "Another completed high priority task".to_string(),
+                due_date: "2024-11-23".to_string(),
+                priority: PriorityLevel::High,
+                completed: true,
+                completed_date: None,
+            },
+        ];
+
+        let mut gamification = Gamification::new();
+        gamification.check_challenges(&tasks);
+
+        assert_eq!(gamification.points, 60); // 30 (High) + 30 (High)
+        assert_eq!(
+            gamification.achievement_message,
+            "Keep going! You're progressing toward the next level!"
+        );
+    }
+}
