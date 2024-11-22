@@ -51,11 +51,6 @@ impl TemplateApp {
     /// 
     /// A new instance of the TemplateApp struct.
     /// 
-    /// # Example
-    /// 
-    /// ```
-    /// let app = TemplateApp::new(&cc);
-    /// ```
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let mut app = Self::default();
         // if let Some(storage) = cc.storage {
@@ -74,12 +69,6 @@ impl TemplateApp {
 
     /// This function adds a new task to the task list.
     /// It checks if the task name, description, and due date are not empty before adding the task.
-    /// 
-    /// # Example
-    /// 
-    /// ```
-    /// app.add_task();
-    /// ```
     /// 
     /// # Notes
     /// 
@@ -112,12 +101,6 @@ impl TemplateApp {
     /// This function updates the achievements based on the task list.
     /// It uses the gamification system to check challenges and daily rewards.
     /// 
-    /// # Example
-    /// 
-    /// ```
-    /// app.update_achievements();
-    /// ```
-    /// 
     /// # Notes
     /// 
     /// This function modifies the app state by updating the achievement messages and points.
@@ -135,11 +118,6 @@ impl TemplateApp {
     /// 
     /// * `ctx` - The egui::Context for the UI.
     /// 
-    /// # Example
-    /// 
-    /// ```
-    /// app.left_panel_logic(&ctx);
-    /// ```
     fn left_panel_logic(&mut self, ctx: &egui::Context) {
         egui::SidePanel::left("left_panel").show(ctx, |ui| {
             ui.heading("Add a Task");
@@ -272,11 +250,6 @@ impl TemplateApp {
     /// 
     /// * `ctx` - The egui::Context for the UI.
     /// 
-    /// # Example
-    /// 
-    /// ```
-    /// app.right_panel_logic(&ctx);
-    /// ```
     fn right_panel_logic(&mut self, ctx: &egui::Context) {
         egui::SidePanel::right("right_panel").show(ctx, |ui| {
             ui.heading("Achievements");
@@ -327,12 +300,7 @@ impl TemplateApp {
     /// # Arguments
     /// 
     /// * `ctx` - The egui::Context for the UI.
-    /// 
-    /// # Example
-    /// 
-    /// ```
-    /// app.central_panel_logic(&ctx);
-    /// ```
+    ///
     fn central_panel_logic(&mut self, ctx: &egui::Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
@@ -371,11 +339,6 @@ impl TemplateApp {
     /// 
     /// * `ctx` - The egui::Context for the UI.
     /// 
-    /// # Example
-    /// 
-    /// ```
-    /// app.bottom_panel_logic(&ctx);
-    /// ```
     fn bottom_panel_logic(&mut self, ctx: &egui::Context) {
         egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
             // if the button is clicked, display a report of metrics of tasks
@@ -474,11 +437,6 @@ impl eframe::App for TemplateApp {
     /// 
     /// * `storage` - The eframe::Storage to save the app state.
     /// 
-    /// # Example
-    /// 
-    /// ```
-    /// app.save(&mut storage);
-    /// ```
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         eframe::set_value(storage, eframe::APP_KEY, self);
     }
@@ -490,11 +448,6 @@ impl eframe::App for TemplateApp {
     /// * `ctx` - The egui::Context for the UI.
     /// * `frame` - The eframe::Frame for the UI.
     /// 
-    /// # Example
-    /// 
-    /// ```
-    /// app.update(&ctx, &mut frame);
-    /// ```
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
