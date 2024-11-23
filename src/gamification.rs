@@ -6,7 +6,7 @@ pub enum PriorityLevel {
     High = 3,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 /// Task struct with fields for name, description, due date, priority level, and completion status
 pub struct Task {
     pub name: String,
@@ -124,33 +124,43 @@ impl Gamification {
     /// 
     /// * `tasks` - A slice of Task structs representing the user's tasks
     pub fn weekly_challenge(&mut self, tasks: &[Task]) {
-        // get the current date
+        // Get the current date
         let current_date = chrono::Local::now().format("%Y-%m-%d").to_string();
-
-        // get the date 7 days ago
-        let seven_days_ago = chrono::Local::now().checked_sub_signed(chrono::Duration::days(7)).unwrap().format("%Y-%m-%d").to_string();
-
-        // get the number of tasks completed each day in the last 7 days
+    
+        // Get the date 7 days ago
+        let seven_days_ago = chrono::Local::now().checked_sub_signed(chrono::Duration::days(7))
+            .map(|date| date.format("%Y-%m-%d").to_string())
+            .unwrap_or_else(|| "1970-01-01".to_string()); // Default to a valid date if subtraction fails
+    
+        // Get the number of tasks completed each day in the last 7 days
         let mut tasks_completed_each_day = vec![0; 7];
+    
         for task in tasks {
             if let Some(completed_date) = &task.completed_date {
-                // check if the task was completed within the last 7 days
+                // Check if the task was completed within the last 7 days
                 if completed_date >= &seven_days_ago && completed_date <= &current_date {
-                    // calculate the index of the day in the last 7 days
-                    let days_diff = chrono::NaiveDate::parse_from_str(&current_date, "%Y-%m-%d").unwrap()
-                        .signed_duration_since(chrono::NaiveDate::parse_from_str(completed_date, "%Y-%m-%d").unwrap())
-                        .num_days() as usize;
-                    tasks_completed_each_day[6 - days_diff] += 1;
+                    // Try parsing the current date and completed date safely
+                    let current_naive_date = chrono::NaiveDate::parse_from_str(&current_date, "%Y-%m-%d");
+                    let completed_naive_date = chrono::NaiveDate::parse_from_str(completed_date, "%Y-%m-%d");
+    
+                    // If both dates are valid, calculate the difference
+                    if let (Ok(current), Ok(completed)) = (current_naive_date, completed_naive_date) {
+                        let days_diff = current.signed_duration_since(completed).num_days() as usize;
+                        if days_diff < 7 {
+                            tasks_completed_each_day[6 - days_diff] += 1;
+                        }
+                    }
                 }
             }
         }
-
-        // if the user has completed a task every day for the last 7 days, give them 100 points
+    
+        // If the user has completed a task every day for the last 7 days, give them 100 points
         if tasks_completed_each_day.iter().all(|&count| count > 0) {
             self.points = 100;
             self.display_weekly_challenge("Congrats! You completed a task every day for the last week!");
         }
     }
+    
     
 
     /// Helper function to display an achievement message to the user

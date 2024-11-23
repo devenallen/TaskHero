@@ -7,7 +7,7 @@ fuzz_target!(|data: &[u8]| {
 });
 extern crate task_hero;
 
-use task_hero::gamification::{PriorityLevel, Task};
+use task_hero::gamification::{PriorityLevel, Task, Gamification};
 
 fn fuzz_target(data: &[u8]) {
     // Try to construct a Task with fuzzed data

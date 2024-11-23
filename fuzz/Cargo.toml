@@ -20,3 +20,11 @@ path = "fuzz_targets/fuzz_target_1.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "gamification_fuzz"
+path = "fuzz_targets/gamification_fuzz.rs"
+
+[[bin]]
+name = "task_points_and_dates_fuzz"
+path = "fuzz_targets/task_points_and_dates_fuzz.rs"
