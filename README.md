@@ -73,6 +73,21 @@ We added a working dockerfile to allow for that usage. Details on running with d
 
 We also made sure that proper project documentation was added and completed for this release. 
 
+# Updates for final release
+
+For our final release, we created some unit testing for gamification.rs. To run these tests, just enter
+cargo test
+
+We touched up the documentation of task hero and made sure that the methods are all accounted for and documented.
+
+We worked on fuzzing especially when it came to the gamification side of our application. To run our fuzzing, make sure that you 
+have cargo-fuzz installed. To install, enter cargo install cargo-fuzz.
+Once you have cargo fuzz installed and your configurations for cargo-fuzz are correct, enter the following commands to run
+our different fuzzer targets:
+- cargo fuzz run fuzz_target_1
+- cargo fuzz run task_points_and_dates_fuzz
+- cargo fuzz run gamification_fuzz
+
 # Data structures, modules, and functions
 
 The eframe natively stores data for us between sessions using the 'save' method. We had to add the ability to derive both the TemplateApp and Task structs to allow this to happen. Through this, the user's local data is automatically stored when the app is closed and reloaded when the app is oppened.
@@ -86,6 +101,7 @@ within the main directory, run this command:
 'docker build -t task_hero .'
 This may take a few minutes to build. Once this is completed, run the following command:
 'docker run -d -p 8080:80 task_hero'
+If that port is in use from another container, you can switch to a different value (ex. 8090:80)
 
 If both of these are successful, you should be able to open your browser and go to 'localhost:8080' and see our application.
 
