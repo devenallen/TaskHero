@@ -79,6 +79,7 @@ For our final release, we created some unit testing for gamification.rs. To run 
 cargo test
 
 We touched up the documentation of task hero and made sure that the methods are all accounted for and documented.
+In order to see our documentation, run the command 'cargo doc --open' to see the documentation.
 
 We worked on fuzzing especially when it came to the gamification side of our application. To run our fuzzing, make sure that you 
 have cargo-fuzz installed. To install, enter cargo install cargo-fuzz.
